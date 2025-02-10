@@ -49,8 +49,26 @@ namespace Eco.Mods.TechTree
     [RequireComponent(typeof(PropertyAuthComponent))]
     [RequireComponent(typeof(CustomTextComponent))]
     [RequireComponent(typeof(WorldObjectComponent))]
+    [RequireComponent(typeof(OccupancyRequirementComponent))]
     [Tag("Usable")]
     [Ecopedia("Crafted Objects", "Signs", subPageName: "Sci-Fi Display Sign Item")]
+    public partial class SciFiSignObject : WorldObject, IRepresentsItem
+    {
+
+        static SciFiSignObject()
+        {
+            WorldObject.AddOccupancy<SciFiSignObject>(new List<BlockOccupancy>
+            {
+                new BlockOccupancy(new Vector3i(0, 1, 0)),
+                new BlockOccupancy(new Vector3i(0, 1, -1)),
+                new BlockOccupancy(new Vector3i(0, 0, 0)),
+                new BlockOccupancy(new Vector3i(0, 0, -1))
+            });
+        }
+
+
+    }
+
     public partial class SciFiSignObject : WorldObject, IRepresentsItem
     {
         public virtual Type RepresentedItemType => typeof(SciFiSignItem);
@@ -76,15 +94,19 @@ namespace Eco.Mods.TechTree
     [Weight(1500)]
     public partial class SciFiSignItem : WorldObjectItem<SciFiSignObject>, IPersistentData
     {
-        [Serialized, SyncToView] public object PersistentData { get; set; }
+        protected override OccupancyContext GetOccupancyContext => new SideAttachedContext(0 | DirectionAxisFlags.Backward, WorldObject.GetOccupancyInfo(this.WorldObjectType));
+
+        [Serialized, SyncToView, NewTooltipChildren(CacheAs.Instance, flags: TTFlags.AllowNonControllerTypeForChildren)] public object PersistentData { get; set; }
     }
 
-    
+    /// <summary>
+    /// Server-side recipe definition for "Sci-Fi Display Sign".
+    /// </summary>
     [RequiresSkill(typeof(SmeltingSkill), 2)]
     [Ecopedia("Crafted Objects", "Signs", subPageName: "Sci-Fi Display Sign Item")]
     public partial class SciFiSignRecipe : RecipeFamily
     {
-        public SciFiSignRecipe()  ///not final recipe, just a placeholder for testing purposes.
+        public SciFiSignRecipe()
         {
             var recipe = new Recipe();
             recipe.Init(
@@ -92,7 +114,7 @@ namespace Eco.Mods.TechTree
                 displayName: Localizer.DoStr("Sci-Fi Display Sign"),
                 ingredients: new List<IngredientElement>
                 {
-                    new IngredientElement("HewnLog", 8, typeof(SmeltingSkill)),  
+                    new IngredientElement("HewnLog", 8, typeof(SmeltingSkill)),
                     
                 },
                 items: new List<CraftingElement>
@@ -110,7 +132,7 @@ namespace Eco.Mods.TechTree
             this.Initialize(Localizer.DoStr("Sci-Fi Display Sign"), typeof(SciFiSignRecipe));
             this.ModsPostInitialize();
 
-            CraftingComponent.AddRecipe(typeof(AnvilObject), this);  
+            CraftingComponent.AddRecipe(typeof(AnvilObject), this);  // Adjust the crafting station if needed
         }
 
         partial void ModsPreInitialize();
