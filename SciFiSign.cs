@@ -49,26 +49,8 @@ namespace Eco.Mods.TechTree
     [RequireComponent(typeof(PropertyAuthComponent))]
     [RequireComponent(typeof(CustomTextComponent))]
     [RequireComponent(typeof(WorldObjectComponent))]
-    [RequireComponent(typeof(OccupancyRequirementComponent))]
     [Tag("Usable")]
     [Ecopedia("Crafted Objects", "Signs", subPageName: "Sci-Fi Display Sign Item")]
-    public partial class SciFiSignObject : WorldObject, IRepresentsItem
-    {
-
-        static SciFiSignObject()
-        {
-            WorldObject.AddOccupancy<SciFiSignObject>(new List<BlockOccupancy>
-            {
-                new BlockOccupancy(new Vector3i(0, 1, 0)),
-                new BlockOccupancy(new Vector3i(0, 1, -1)),
-                new BlockOccupancy(new Vector3i(0, 0, 0)),
-                new BlockOccupancy(new Vector3i(0, 0, -1))
-            });
-        }
-
-
-    }
-
     public partial class SciFiSignObject : WorldObject, IRepresentsItem
     {
         public virtual Type RepresentedItemType => typeof(SciFiSignItem);
@@ -93,9 +75,7 @@ namespace Eco.Mods.TechTree
     [Ecopedia("Crafted Objects", "Signs", createAsSubPage: true)]
     [Weight(1500)]
     public partial class SciFiSignItem : WorldObjectItem<SciFiSignObject>, IPersistentData
-    {
-        protected override OccupancyContext GetOccupancyContext => new SideAttachedContext(0 | DirectionAxisFlags.Backward, WorldObject.GetOccupancyInfo(this.WorldObjectType));
-
+    {     
         [Serialized, SyncToView, NewTooltipChildren(CacheAs.Instance, flags: TTFlags.AllowNonControllerTypeForChildren)] public object PersistentData { get; set; }
     }
 
